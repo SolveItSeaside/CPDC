@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>U+ Bank — Action Taxonomy</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#06060e;--gold:#f0c040;--teal:#3de8c8;--coral:#ff6b6b;--blue:#5b9cf6;--purple:#c084fc;--text:#eeeef8;--muted:#7777a0;--muted2:#9999bb}
+html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);font-family:'Outfit',sans-serif;color:var(--text)}
+#topbar{position:fixed;top:0;left:0;right:0;height:52px;display:flex;align-items:center;justify-content:center;z-index:50;background:rgba(6,6,14,0.97);border-bottom:1px solid rgba(255,255,255,0.05)}
+.tb-eye{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.2em;color:var(--gold);text-transform:uppercase;margin-right:12px}
+.tb-title{font-family:'Bebas Neue',sans-serif;font-size:1.7rem;letter-spacing:0.06em;line-height:1}
+.tb-title span{color:var(--gold)}
+.bk{position:fixed;top:10px;right:20px;z-index:200;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.08em;color:var(--muted);background:rgba(6,6,14,0.9);border:1px solid rgba(255,255,255,0.1);padding:6px 14px;border-radius:8px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.bk:hover{color:var(--text)}
+#layout{position:fixed;top:52px;left:0;right:0;bottom:0;display:flex;flex-direction:row}
+#sidebar{width:0;flex-shrink:0;display:flex;flex-direction:column;overflow:hidden;transition:width 0.65s cubic-bezier(0.77,0,0.175,1);z-index:30}
+.sb{flex:1;display:flex;align-items:center;justify-content:center;min-height:0}
+.sb:nth-child(1){background:rgba(240,192,64,0.15)}.sb:nth-child(2){background:rgba(61,232,200,0.13)}
+.sb:nth-child(3){background:rgba(255,107,107,0.13)}.sb:nth-child(4){background:rgba(91,156,246,0.13)}
+.sb:nth-child(5){background:rgba(192,132,252,0.13)}
+.sb-lbl{font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:0.18em;writing-mode:vertical-rl;transform:rotate(180deg);white-space:nowrap;opacity:0.8}
+.sb:nth-child(1) .sb-lbl{color:var(--gold)}.sb:nth-child(2) .sb-lbl{color:var(--teal)}
+.sb:nth-child(3) .sb-lbl{color:var(--coral)}.sb:nth-child(4) .sb-lbl{color:var(--blue)}
+.sb:nth-child(5) .sb-lbl{color:var(--purple)}
+#content{flex:1;position:relative;overflow:hidden}
+.band{position:absolute;left:0;right:0;height:20%;overflow:hidden}
+.band:nth-child(1){top:0}.band:nth-child(2){top:20%}.band:nth-child(3){top:40%}
+.band:nth-child(4){top:60%}.band:nth-child(5){top:80%}
+.strip{position:absolute;inset:0;display:flex;flex-direction:row;align-items:center;padding:0 48px;gap:32px;cursor:pointer;transform-origin:left center;transition:transform 0.65s cubic-bezier(0.77,0,0.175,1);border-bottom:1px solid rgba(255,255,255,0.05);z-index:10}
+.band:nth-child(1) .strip{background:#0e0b02}.band:nth-child(2) .strip{background:#020e0a}
+.band:nth-child(3) .strip{background:#0e0202}.band:nth-child(4) .strip{background:#02050e}
+.band:nth-child(5) .strip{background:#06020e}
+.strip::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px}
+.band:nth-child(1) .strip::before{background:var(--gold)}.band:nth-child(2) .strip::before{background:var(--teal)}
+.band:nth-child(3) .strip::before{background:var(--coral)}.band:nth-child(4) .strip::before{background:var(--blue)}
+.band:nth-child(5) .strip::before{background:var(--purple)}
+.strip.folded{transform:scaleX(0);pointer-events:none}
+.strip.locked{cursor:not-allowed}
+.s-num{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.2em;color:var(--muted);min-width:28px;flex-shrink:0}
+.s-name{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.5rem,1.9vw,2.5rem);letter-spacing:0.06em;line-height:1;min-width:140px;flex-shrink:0}
+.band:nth-child(1) .s-name{color:var(--gold)}.band:nth-child(2) .s-name{color:var(--teal)}
+.band:nth-child(3) .s-name{color:var(--coral)}.band:nth-child(4) .s-name{color:var(--blue)}
+.band:nth-child(5) .s-name{color:var(--purple)}
+.s-div{width:1px;height:35%;background:rgba(255,255,255,0.07);flex-shrink:0}
+.s-def{font-size:12px;color:var(--muted2);line-height:1.6;max-width:500px;flex:1}
+.s-cta{margin-left:auto;flex-shrink:0;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;padding:6px 16px;border-radius:99px;border:1px solid}
+.band:nth-child(1) .s-cta{color:var(--gold);border-color:rgba(240,192,64,0.4);animation:pu 2s ease-in-out infinite}
+.band:nth-child(2) .s-cta{color:var(--teal);border-color:rgba(61,232,200,0.4)}
+.band:nth-child(3) .s-cta{color:var(--coral);border-color:rgba(255,107,107,0.4)}
+.band:nth-child(4) .s-cta{color:var(--blue);border-color:rgba(91,156,246,0.4)}
+.band:nth-child(5) .s-cta{color:var(--purple);border-color:rgba(192,132,252,0.4)}
+.strip.locked .s-cta{opacity:0.25;animation:none}
+.strip.locked .s-cta::before{content:'🔒 '}
+.strip.ready .s-cta{animation:pu 2s ease-in-out infinite}
+@keyframes pu{0%,100%{opacity:0.4}50%{opacity:1}}
+.tree-layer{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:8px 20px;z-index:1;opacity:0;transition:opacity 0.5s ease 0.35s}
+.tree-layer.vis{opacity:1}
+.t-tag{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.18em;text-transform:uppercase;padding:2px 10px;border-radius:99px;border:1px solid rgba(255,255,255,0.07);color:var(--muted);background:rgba(255,255,255,0.025);flex-shrink:0}
+.t-row{display:flex;flex-direction:row;flex-wrap:wrap;justify-content:center;gap:6px;width:100%;position:relative}
+.nd{padding:6px 13px;border-radius:8px;border:1px solid;font-size:11px;font-weight:500;text-align:center;animation:ndi 0.4s ease forwards;opacity:0;transition:transform 0.15s;cursor:default;position:relative}
+.nd:hover{transform:translateY(-1px)}
+@keyframes ndi{from{opacity:0;transform:scale(0.85)}to{opacity:1;transform:scale(1)}}
+.nd-i{color:var(--gold);background:rgba(240,192,64,0.08);border-color:rgba(240,192,64,0.28);font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:0.08em;padding:9px 26px}
+.nd-g{color:var(--teal);background:rgba(61,232,200,0.07);border-color:rgba(61,232,200,0.24)}
+.nd-a{color:var(--coral);background:rgba(255,107,107,0.07);border-color:rgba(255,107,107,0.22)}
+.nd-t{color:var(--blue);background:rgba(91,156,246,0.07);border-color:rgba(91,156,246,0.22)}
+.nd-c{color:var(--purple);background:rgba(192,132,252,0.07);border-color:rgba(192,132,252,0.22)}
+/* SVG connector overlay — spans between bands, sits above tree layers */
+
+</style>
+</head>
+<body>
+<a href="index.html" class="bk">← Study Hub</a>
+<div id="topbar">
+  <span class="tb-eye">Action Taxonomy —</span>
+  <div class="tb-title">U+ <span>Bank</span></div>
+</div>
+<div id="layout">
+  <div id="sidebar">
+    <div class="sb"><span class="sb-lbl">Issues</span></div>
+    <div class="sb"><span class="sb-lbl">Groups</span></div>
+    <div class="sb"><span class="sb-lbl">Actions</span></div>
+    <div class="sb"><span class="sb-lbl">Treatments</span></div>
+    <div class="sb"><span class="sb-lbl">Channels</span></div>
+  </div>
+  <div id="content">
+    <!-- SVG overlay for connection lines -->
+    <svg id="connectors" id="connSvg"></svg>
+
+    <div class="band">
+      <div class="tree-layer" id="tl0"><div class="t-tag">Business Issues</div><div class="t-row" id="tr0"></div></div>
+      <div class="strip" id="s0" onclick="peel(0)">
+        <div class="s-num">01</div><div class="s-name">Issues</div><div class="s-div"></div>
+        <div class="s-def">The top of the hierarchy. A Business Issue is the overall purpose behind a set of customer actions — the "why". Everything in the taxonomy sits underneath an Issue.</div>
+        <div class="s-cta">Reveal Issues</div>
+      </div>
+    </div>
+    <div class="band">
+      <div class="tree-layer" id="tl1"><div class="t-tag">Groups</div><div class="t-row" id="tr1"></div></div>
+      <div class="strip locked" id="s1" onclick="peel(1)">
+        <div class="s-num">02</div><div class="s-name">Groups</div><div class="s-div"></div>
+        <div class="s-def">Groups sit inside Issues and organise actions into product or service categories. A Group always belongs to exactly one Issue. Engagement policies set at Group level apply to every action within it.</div>
+        <div class="s-cta">Reveal Groups</div>
+      </div>
+    </div>
+    <div class="band">
+      <div class="tree-layer" id="tl2"><div class="t-tag">Actions</div><div class="t-row" id="tr2"></div></div>
+      <div class="strip locked" id="s2" onclick="peel(2)">
+        <div class="s-num">03</div><div class="s-name">Actions</div><div class="s-div"></div>
+        <div class="s-def">Actions are the individual offers or messages CDH presents to each customer. Each Action belongs to exactly one Issue and one Group. In U+ Bank, Actions under Credit Cards are renamed "Offers" — a key exam point.</div>
+        <div class="s-cta">Reveal Actions</div>
+      </div>
+    </div>
+    <div class="band">
+      <div class="tree-layer" id="tl3"><div class="t-tag">Treatments</div><div class="t-row" id="tr3"></div></div>
+      <div class="strip locked" id="s3" onclick="peel(3)">
+        <div class="s-num">04</div><div class="s-name">Treatments</div><div class="s-div"></div>
+        <div class="s-def">A Treatment is the channel-specific version of an Action — how it looks and feels per channel. One Action can have multiple Treatments. Treatments hold the creative: images, copy, dynamic placeholders.</div>
+        <div class="s-cta">Reveal Treatments</div>
+      </div>
+    </div>
+    <div class="band">
+      <div class="tree-layer" id="tl4"><div class="t-tag">Channels</div><div class="t-row" id="tr4"></div></div>
+      <div class="strip locked" id="s4" onclick="peel(4)">
+        <div class="s-num">05</div><div class="s-name">Channels</div><div class="s-div"></div>
+        <div class="s-def">Channels are how CDH delivers Actions and Treatments to customers — inbound (customer initiates) or outbound (bank proactively reaches out). Configured in NBA Designer under the Channels tab.</div>
+        <div class="s-cta">Reveal Channels</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// parent relationships: [childIndex] = parentLabel
+const DATA=[
+  {cls:'nd-i', nodes:[
+    {l:'Grow',    parent:null},
+    {l:'Retain',  parent:null}
+  ]},
+  {cls:'nd-g', nodes:[
+    {l:'Credit Cards', parent:'Grow'},
+    {l:'Mortgages',    parent:'Grow'},
+    {l:'Negotiation',  parent:'Retain'},
+    {l:'ExtraMiles',   parent:'Retain'}
+  ]},
+  {cls:'nd-a', nodes:[
+    {l:'Premier Rewards Card', parent:'Credit Cards'},
+    {l:'Rewards Plus Card',    parent:'Credit Cards'},
+    {l:'Standard Card',        parent:'Credit Cards'},
+    {l:'Rewards Card',         parent:'Credit Cards'},
+    {l:'Fixed rate mortgage info', parent:'Mortgages'},
+    {l:'Explore mortgages',    parent:'Mortgages'},
+    {l:'Retention offer',      parent:'Negotiation'}
+  ]},
+  {cls:'nd-t', nodes:[
+    {l:'Web treatment',         parent:'Premier Rewards Card'},
+    {l:'Email treatment',       parent:'Rewards Plus Card'},
+    {l:'SMS treatment',         parent:'Standard Card'},
+    {l:'Call Centre treatment', parent:'Retention offer'}
+  ]},
+  {cls:'nd-c', nodes:[
+    {l:'Web',           parent:'Web treatment'},
+    {l:'Call Centre',   parent:'Call Centre treatment'},
+    {l:'Email',         parent:'Email treatment'},
+    {l:'SMS',           parent:'SMS treatment'},
+    {l:'Push',          parent:null}
+  ]}
+];
+
+const SW=32;
+let peeled=-1;
+// store rendered node elements by label for line drawing
+const nodeEls={};
+
+function peel(i){
+  if(i!==peeled+1)return;
+  const s=document.getElementById('s'+i);
+  if(s.classList.contains('locked'))return;
+  peeled=i;
+  s.classList.add('folded');
+  document.getElementById('sidebar').style.width=((peeled+1)*SW)+'px';
+  if(i<4){
+    const n=document.getElementById('s'+(i+1));
+    n.classList.remove('locked');
+    n.classList.add('ready');
+  }
+  document.getElementById('tl'+i).classList.add('vis');
+  renderNodes(i);
+}
+
+function renderNodes(i){
+  const row=document.getElementById('tr'+i);
+  const layer=DATA[i];
+  layer.nodes.forEach((nd,ni)=>{
+    const el=document.createElement('div');
+    el.className='nd '+layer.cls;
+    el.style.animationDelay=(ni*50)+'ms';
+    el.dataset.label=nd.l;
+    el.textContent=nd.l;
+    row.appendChild(el);
+    nodeEls[nd.l]=el;
+  });
+  // draw lines after nodes paint
+  setTimeout(()=>drawLines(i), 500);
+}
+
+function drawLines(i){
+  if(i===0)return; // no parents for issues
+  const svg=document.getElementById('connectors');
+  const content=document.getElementById('content');
+  const contentRect=content.getBoundingClientRect();
+
+  DATA[i].nodes.forEach(nd=>{
+    if(!nd.parent)return;
+    const childEl=nodeEls[nd.l];
+    const parentEl=nodeEls[nd.parent];
+    if(!childEl||!parentEl)return;
+
+    const cr=childEl.getBoundingClientRect();
+    const pr=parentEl.getBoundingClientRect();
+
+    // coords relative to #content
+    const x1=pr.left+pr.width/2 - contentRect.left;
+    const y1=pr.bottom - contentRect.top;
+    const x2=cr.left+cr.width/2 - contentRect.left;
+    const y2=cr.top - contentRect.top;
+
+    const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+    // cubic bezier curve
+    const cy1=y1+(y2-y1)*0.5;
+    const cy2=y2-(y2-y1)*0.5;
+    path.setAttribute('d',`M ${x1} ${y1} C ${x1} ${cy1}, ${x2} ${cy2}, ${x2} ${y2}`);
+    path.setAttribute('stroke','rgba(255,255,255,0.12)');
+    path.setAttribute('stroke-width','1.5');
+    path.setAttribute('fill','none');
+    path.setAttribute('stroke-dasharray','4 3');
+    path.style.opacity='0';
+    path.style.transition='opacity 0.6s ease';
+    svg.appendChild(path);
+    requestAnimationFrame(()=>requestAnimationFrame(()=>path.style.opacity='1'));
+  });
+}
+</script>
+<svg id="connectors" style="position:fixed;top:52px;left:0;right:0;bottom:0;width:100%;height:calc(100% - 52px);pointer-events:none;z-index:20;overflow:visible"></svg>
+</body>
+</html>
