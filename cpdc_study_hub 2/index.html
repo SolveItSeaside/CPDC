@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>CPDC Study Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#e8e0d0;--surface:#ddd5c4;--card:#d4ccbc;--card2:#ccc4b4;
+  --border:#b8b0a0;--border2:#a8a090;
+  --text:#2a2418;--muted:#7a6e5a;--muted2:#6a5e4a;
+  --olive:#5a6e3a;--olive2:#6a8044;--ochre:#c4882a;--brown:#7a5a3a;
+  --teal:#3a7060;--rust:#a05030;
+}
+html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;-webkit-text-size-adjust:100%;overflow-x:hidden}
+.view{display:none;min-height:100vh;animation:fadeIn 0.3s ease}
+.view.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.back-btn{display:inline-flex;align-items:center;gap:8px;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.08em;color:var(--muted);background:none;border:1px solid var(--border);padding:8px 14px;border-radius:8px;cursor:pointer;transition:color 0.2s,border-color 0.2s;margin-bottom:28px;text-decoration:none;min-height:44px}
+.back-btn:hover{color:var(--text);border-color:var(--border2)}
+.eyebrow{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;margin-bottom:10px}
+.big-title{font-family:'Bebas Neue',sans-serif;line-height:0.95;color:var(--text)}
+.cta-btn{display:inline-flex;align-items:center;gap:8px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:600;background:var(--olive);color:#e8f0d8;border:none;padding:14px 28px;border-radius:9px;cursor:pointer;transition:background 0.2s,transform 0.15s;min-height:48px}
+.cta-btn:hover{background:var(--olive2);transform:translateY(-1px)}
+.page-inner{max-width:860px;margin:0 auto;padding:48px 20px 80px}
+
+/* SOURCE LINK */
+.src-link{display:inline-flex;align-items:center;gap:4px;font-family:'DM Mono',monospace;font-size:10px;color:var(--teal);text-decoration:none;border:1px solid rgba(58,112,96,0.25);padding:2px 8px;border-radius:4px;margin-top:8px;background:rgba(58,112,96,0.06);transition:background 0.2s}
+.src-link:hover{background:rgba(58,112,96,0.12)}
+
+/* HOME */
+.home-eyebrow{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.2em;color:var(--olive);text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.home-eyebrow::before{content:'';width:28px;height:1px;background:var(--olive);opacity:0.5}
+.home-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(3rem,10vw,7rem);line-height:0.9;color:var(--text);margin-bottom:8px}
+.home-title span{color:var(--olive)}
+.home-sub{font-size:15px;color:var(--muted2);font-weight:300;margin-bottom:40px;max-width:440px;line-height:1.65}
+.section-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.18em;color:var(--muted);text-transform:uppercase;margin-bottom:12px;margin-top:28px}
+.topic-list{display:flex;flex-direction:column;gap:8px}
+.topic-item{display:flex;align-items:stretch;border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--card);cursor:pointer;transition:border-color 0.2s,transform 0.2s;min-height:60px}
+.topic-item:hover:not(.locked){border-color:var(--olive);transform:translateX(3px)}
+.topic-item.locked{cursor:not-allowed;opacity:0.4}
+.topic-accent{width:3px;flex-shrink:0}
+.ta-olive{background:var(--olive)}.ta-ochre{background:var(--ochre)}.ta-teal{background:var(--teal)}.ta-brown{background:var(--brown)}.ta-rust{background:var(--rust)}.ta-locked{background:var(--border2)}
+.topic-body{flex:1;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.topic-name{font-size:14px;font-weight:600;color:var(--text);margin-bottom:2px}
+.topic-meta{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.meta-pill{font-family:'DM Mono',monospace;font-size:10px;padding:2px 8px;border-radius:99px}
+.mp-olive{background:rgba(90,110,58,0.12);color:var(--olive);border:1px solid rgba(90,110,58,0.22)}
+.mp-ochre{background:rgba(196,136,42,0.12);color:var(--ochre);border:1px solid rgba(196,136,42,0.22)}
+.mp-teal{background:rgba(58,112,96,0.12);color:var(--teal);border:1px solid rgba(58,112,96,0.22)}
+.mp-rust{background:rgba(160,80,48,0.12);color:var(--rust);border:1px solid rgba(160,80,48,0.22)}
+.mp-brown{background:rgba(122,90,58,0.12);color:var(--brown);border:1px solid rgba(122,90,58,0.22)}
+.mp-locked{background:rgba(122,110,90,0.08);color:var(--muted);border:1px solid var(--border)}
+.topic-arrow{font-size:15px;color:var(--olive);opacity:0.5;transition:opacity 0.2s,transform 0.2s;flex-shrink:0}
+.topic-item:hover:not(.locked) .topic-arrow{opacity:1;transform:translateX(2px)}
+.topic-item.locked .topic-arrow{color:var(--muted);opacity:0.3}
+.section-divider{height:1px;background:var(--border);margin:24px 0}
+
+/* REVISION */
+.rev-grid{display:flex;flex-direction:column;gap:2px;margin-bottom:32px}
+.rev-card{background:var(--card);border:1px solid var(--border);overflow:hidden}
+.rev-card:first-child{border-radius:10px 10px 0 0}
+.rev-card:last-child{border-radius:0 0 10px 10px}
+.rev-card-header{display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;transition:background 0.2s;user-select:none;min-height:52px}
+.rev-card-header:hover{background:var(--card2)}
+.rev-num{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);min-width:22px;flex-shrink:0}
+.rev-cap-name{font-size:14px;font-weight:600;color:var(--text);flex:1}
+.rev-cap-type{font-family:'DM Mono',monospace;font-size:10px;padding:2px 8px;background:rgba(90,110,58,0.08);border-radius:4px;border:1px solid rgba(90,110,58,0.2);color:var(--olive);flex-shrink:0;display:none}
+@media(min-width:480px){.rev-cap-type{display:inline-block}}
+.rev-chevron{color:var(--muted);font-size:13px;transition:transform 0.25s;margin-left:6px;flex-shrink:0}
+.rev-card.open .rev-chevron{transform:rotate(180deg)}
+.rev-card-body{display:none;padding:4px 16px 18px 50px;border-top:1px solid var(--border)}
+.rev-card.open .rev-card-body{display:block}
+.rev-def{font-size:13.5px;color:var(--text);line-height:1.75;margin-top:12px}
+.rev-example{font-size:12.5px;color:var(--muted2);line-height:1.6;margin-top:10px;padding:9px 12px;background:rgba(90,110,58,0.06);border-left:2px solid var(--olive);border-radius:0 6px 6px 0;font-style:italic}
+.rev-who{font-family:'DM Mono',monospace;font-size:10px;color:var(--ochre);margin-top:8px;letter-spacing:0.04em}
+.rev-extra{font-size:12px;color:var(--muted2);line-height:1.6;margin-top:8px;padding:8px 12px;background:rgba(58,112,96,0.05);border-left:2px solid var(--teal);border-radius:0 6px 6px 0}
+.rev-cta{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px;text-align:center;margin-top:8px}
+.rev-cta h3{font-family:'Bebas Neue',sans-serif;font-size:1.7rem;color:var(--text);margin-bottom:6px;letter-spacing:0.04em}
+.rev-cta p{font-size:13px;color:var(--muted2);margin-bottom:18px}
+
+/* FLASHCARDS */
+.fc-inner{max-width:680px;margin:0 auto;padding:40px 20px 80px}
+.fc-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;gap:12px;flex-wrap:wrap}
+.fc-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.6rem,6vw,2.8rem);color:var(--text);letter-spacing:0.04em;line-height:1}
+.fc-progress-wrap{display:flex;align-items:center;gap:8px;min-width:120px}
+.fc-progress-bar{flex:1;height:3px;background:var(--border);border-radius:99px;overflow:hidden}
+.fc-progress-fill{height:100%;background:linear-gradient(90deg,var(--ochre),var(--olive));border-radius:99px;transition:width 0.4s ease}
+.fc-progress-lbl{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);white-space:nowrap}
+.fc-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:clamp(1.2rem,4vw,2rem);min-height:320px;display:flex;flex-direction:column;position:relative;overflow:hidden;margin-bottom:16px}
+.fc-card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--ochre),var(--olive),var(--teal))}
+.fc-card-num{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:0.1em;margin-bottom:16px}
+.fc-cap-name{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.6rem,6vw,3rem);line-height:1;letter-spacing:0.03em;color:var(--text);margin-bottom:4px}
+.fc-cap-type{font-family:'DM Mono',monospace;font-size:11px;color:var(--olive2);letter-spacing:0.1em;margin-bottom:20px}
+.fc-section{display:none;animation:revealIn 0.3s ease forwards;margin-top:4px}
+.fc-section.vis{display:block}
+@keyframes revealIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.fc-sec-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;padding:2px 8px;border-radius:4px;display:inline-block;margin-bottom:6px}
+.slabel-def{color:var(--brown);background:rgba(122,90,58,0.1)}
+.slabel-eg{color:var(--teal);background:rgba(58,112,96,0.1)}
+.slabel-who{color:var(--ochre);background:rgba(196,136,42,0.1)}
+.fc-sec-text{font-size:clamp(12px,3.5vw,13.5px);line-height:1.7;color:var(--muted2)}
+.fc-sec-text.italic{font-style:italic;font-size:clamp(11.5px,3.2vw,13px)}
+.fc-divider{height:1px;background:var(--border);margin:12px 0;display:none}
+.fc-divider.vis{display:block}
+.fc-prompt{margin-top:auto;padding-top:16px;display:flex;align-items:center;gap:8px;color:var(--muted);font-size:12px}
+.fc-prompt-dot{width:5px;height:5px;border-radius:50%;background:var(--olive);animation:blink 1.8s ease-in-out infinite;flex-shrink:0}
+@keyframes blink{0%,100%{opacity:0.3}50%{opacity:1}}
+.fc-nav{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.fc-dots{display:flex;gap:5px}
+.fc-dot{width:7px;height:7px;border-radius:50%;background:var(--border);transition:background 0.3s}
+.fc-dot:nth-child(1).lit{background:var(--brown)}
+.fc-dot:nth-child(2).lit{background:var(--teal)}
+.fc-dot:nth-child(3).lit{background:var(--ochre)}
+.btn-nav{font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;padding:11px 18px;border-radius:9px;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--muted);transition:all 0.2s;min-height:44px}
+.btn-nav:hover:not(:disabled){background:var(--surface);color:var(--text);border-color:var(--border2)}
+.btn-nav:disabled{opacity:0.25;cursor:not-allowed}
+.btn-reveal{background:var(--olive);color:#e8f0d8;border-color:var(--olive);font-weight:700;min-width:120px;font-size:13px}
+.btn-reveal:hover{background:var(--olive2);border-color:var(--olive2);transform:translateY(-1px)}
+.btn-reveal:disabled{opacity:0.3;cursor:not-allowed;transform:none}
+.fc-complete{display:none;text-align:center;padding:2.5rem 1.5rem;background:var(--card);border:1px solid var(--border);border-radius:16px;min-height:300px;flex-direction:column;align-items:center;justify-content:center}
+.fc-complete.vis{display:flex}
+.fc-complete-icon{font-size:3rem;margin-bottom:12px}
+.fc-complete h2{font-family:'Bebas Neue',sans-serif;font-size:2.5rem;color:var(--text);margin-bottom:6px}
+.fc-complete p{color:var(--muted2);margin-bottom:20px;font-size:14px;line-height:1.6}
+.fc-complete-btns{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+
+/* TAXONOMY SELECT */
+.company-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:20px}
+.company-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;cursor:pointer;transition:border-color 0.2s,transform 0.2s;position:relative;overflow:hidden}
+.company-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.company-card.ubank::before{background:var(--olive)}.company-card.myco::before{background:var(--ochre)}
+.company-card:hover{transform:translateY(-2px)}
+.company-card.ubank:hover{border-color:var(--olive)}.company-card.myco:hover{border-color:var(--ochre)}
+.company-icon{font-size:1.8rem;margin-bottom:8px}
+.company-name{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:0.04em;margin-bottom:4px}
+.company-card.ubank .company-name{color:var(--olive)}.company-card.myco .company-name{color:var(--ochre)}
+.company-desc{font-size:12px;color:var(--muted2);line-height:1.6;margin-bottom:10px}
+.company-tags{display:flex;flex-wrap:wrap;gap:4px}
+.ctag{font-family:'DM Mono',monospace;font-size:10px;padding:2px 7px;border-radius:4px;border:1px solid}
+.ctag-olive{color:var(--olive);background:rgba(90,110,58,0.08);border-color:rgba(90,110,58,0.2)}
+.ctag-ochre{color:var(--ochre);background:rgba(196,136,42,0.08);border-color:rgba(196,136,42,0.2)}
+
+/* EAS GAME */
+.game-inner{max-width:900px;margin:0 auto;padding:40px 20px 80px}
+.game-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,6vw,3.5rem);color:var(--text);margin-bottom:6px;line-height:1}
+.game-sub{font-size:13px;color:var(--muted2);line-height:1.6;margin-bottom:24px}
+.eas-btns{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.eas-btn{font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;padding:10px 18px;border-radius:8px;cursor:pointer;border:2px solid;transition:all 0.2s;min-height:44px}
+.eas-btn.e{color:var(--olive);border-color:var(--olive);background:transparent}
+.eas-btn.e:hover,.eas-btn.e.active{background:var(--olive);color:#e8f0d8}
+.eas-btn.a{color:var(--ochre);border-color:var(--ochre);background:transparent}
+.eas-btn.a:hover,.eas-btn.a.active{background:var(--ochre);color:#fff8ee}
+.eas-btn.s{color:var(--rust);border-color:var(--rust);background:transparent}
+.eas-btn.s:hover,.eas-btn.s.active{background:var(--rust);color:#fff0ec}
+.eas-btn.all{color:var(--muted);border-color:var(--border);background:transparent}
+.eas-btn.all.active,.eas-btn.all:hover{background:var(--surface);color:var(--text)}
+.eas-grid{display:flex;flex-wrap:wrap;gap:10px}
+.eas-card{background:var(--card);border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;font-size:13px;font-weight:500;color:var(--text);cursor:pointer;transition:all 0.25s;min-height:44px;display:flex;flex-direction:column;gap:4px;user-select:none}
+.eas-card:hover{border-color:var(--border2);transform:translateY(-1px)}
+.eas-card.hidden{opacity:0.12;pointer-events:none}
+.eas-card.flipped.e{border-color:var(--olive);background:rgba(90,110,58,0.08);border-width:2px}
+.eas-card.flipped.a{border-color:var(--ochre);background:rgba(196,136,42,0.08);border-width:2px}
+.eas-card.flipped.s{border-color:var(--rust);background:rgba(160,80,48,0.08);border-width:2px}
+.eas-label{font-size:9px;font-family:'DM Mono',monospace;letter-spacing:0.1em;text-transform:uppercase;display:none}
+.eas-card.flipped .eas-label{display:block}
+.eas-card.flipped.e .eas-label{color:var(--olive)}
+.eas-card.flipped.a .eas-label{color:var(--ochre)}
+.eas-card.flipped.s .eas-label{color:var(--rust)}
+.eas-why{font-size:11px;color:var(--muted2);font-weight:400;display:none;font-style:italic}
+.eas-card.flipped .eas-why{display:block}
+.eas-src{display:none}
+.eas-card.flipped .eas-src{display:inline-flex}
+
+/* QUIZ */
+.quiz-score-bar{display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 16px;margin-bottom:20px}
+.quiz-score-lbl{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:0.1em}
+.quiz-score-val{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--olive);letter-spacing:0.06em}
+.quiz-q-num{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:0.15em;margin-bottom:8px}
+.quiz-question{font-size:clamp(13.5px,3.8vw,15.5px);color:var(--text);line-height:1.7;font-weight:500;margin-bottom:18px;padding:16px;background:var(--card);border-radius:10px;border:1px solid var(--border)}
+.quiz-options{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.quiz-opt{display:flex;align-items:flex-start;gap:10px;padding:13px 14px;background:var(--card);border:1.5px solid var(--border);border-radius:9px;cursor:pointer;transition:all 0.2s;font-size:13px;color:var(--text);text-align:left;min-height:44px}
+.quiz-opt:hover:not(.disabled){border-color:var(--border2);background:var(--card2)}
+.quiz-opt.correct{border-color:var(--olive);background:rgba(90,110,58,0.1);color:var(--olive)}
+.quiz-opt.wrong{border-color:var(--rust);background:rgba(160,80,48,0.08);color:var(--rust)}
+.quiz-opt.disabled{cursor:not-allowed}
+.quiz-opt-letter{font-family:'DM Mono',monospace;font-size:11px;font-weight:600;min-width:20px;padding-top:1px;flex-shrink:0}
+.quiz-reveal{display:none;padding:12px 14px;background:rgba(90,110,58,0.07);border:1px solid rgba(90,110,58,0.2);border-radius:9px;font-size:13px;color:var(--muted2);line-height:1.65;margin-bottom:14px}
+.quiz-reveal.show{display:block}
+.quiz-reveal strong{color:var(--olive);font-weight:600}
+.quiz-next-btn{background:var(--olive);color:#e8f0d8;border:none;padding:12px 24px;border-radius:9px;font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;display:none;min-height:44px;transition:background 0.2s;align-items:center;gap:6px}
+.quiz-next-btn.show{display:inline-flex}
+.quiz-next-btn:hover{background:var(--olive2)}
+.quiz-end{display:none;text-align:center;padding:2rem 1rem}
+.quiz-end.show{display:block}
+.quiz-end-score{font-family:'Bebas Neue',sans-serif;font-size:4rem;color:var(--olive);line-height:1}
+.quiz-end-lbl{font-size:14px;color:var(--muted2);margin-bottom:16px;margin-top:4px}
+.quiz-end-msg{font-size:15px;color:var(--text);font-weight:500;margin-bottom:24px;line-height:1.6}
+
+/* LIFECYCLE */
+.lifecycle-wrap{max-width:700px;margin:0 auto}
+.lifecycle-diagram{display:flex;flex-direction:column;gap:0;margin:20px 0}
+.lc-node{display:flex;align-items:stretch;gap:0;cursor:pointer}
+.lc-left{display:flex;flex-direction:column;align-items:center;width:52px;flex-shrink:0}
+.lc-circle{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:0.95rem;letter-spacing:0.06em;border:2px solid;transition:transform 0.2s;flex-shrink:0;z-index:2;position:relative}
+.lc-node:hover .lc-circle{transform:scale(1.08)}
+.lc-line{width:2px;flex:1;min-height:14px;margin:0 auto}
+.lc-node:last-child .lc-line{display:none}
+.lc-right{flex:1;padding:0 0 18px 12px}
+.lc-header{display:flex;align-items:center;gap:10px;padding:10px 0 6px;flex-wrap:wrap}
+.lc-stage{font-family:'Bebas Neue',sans-serif;font-size:1.25rem;letter-spacing:0.06em}
+.lc-who-pill{font-family:'DM Mono',monospace;font-size:10px;padding:2px 8px;border-radius:99px}
+.lc-body{display:none;font-size:13px;color:var(--muted2);line-height:1.7;padding:10px 14px;background:var(--card);border-radius:8px;border:1px solid var(--border)}
+.lc-body.open{display:block;animation:revealIn 0.25s ease}
+.lc-body p{margin-bottom:10px;color:var(--text);font-size:13.5px}
+.lc-body ul{list-style:none;display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
+.lc-body li{padding-left:14px;position:relative;font-size:13px}
+.lc-body li::before{content:'—';position:absolute;left:0;color:var(--muted);font-size:11px}
+.lc-hint{font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:0.06em;padding:4px 0}
+.lc-n0 .lc-circle{background:rgba(90,110,58,0.1);border-color:var(--olive);color:var(--olive)}
+.lc-n0 .lc-line{background:linear-gradient(to bottom,var(--olive),var(--ochre))}
+.lc-n0 .lc-stage{color:var(--olive)}
+.lc-n0 .lc-who-pill{background:rgba(90,110,58,0.1);color:var(--olive);border:1px solid rgba(90,110,58,0.2)}
+.lc-n1 .lc-circle{background:rgba(196,136,42,0.1);border-color:var(--ochre);color:var(--ochre)}
+.lc-n1 .lc-line{background:linear-gradient(to bottom,var(--ochre),var(--brown))}
+.lc-n1 .lc-stage{color:var(--ochre)}
+.lc-n1 .lc-who-pill{background:rgba(196,136,42,0.1);color:var(--ochre);border:1px solid rgba(196,136,42,0.2)}
+.lc-n2 .lc-circle{background:rgba(122,90,58,0.1);border-color:var(--brown);color:var(--brown)}
+.lc-n2 .lc-line{background:linear-gradient(to bottom,var(--brown),var(--rust))}
+.lc-n2 .lc-stage{color:var(--brown)}
+.lc-n2 .lc-who-pill{background:rgba(122,90,58,0.1);color:var(--brown);border:1px solid rgba(122,90,58,0.2)}
+.lc-n3 .lc-circle{background:rgba(160,80,48,0.1);border-color:var(--rust);color:var(--rust)}
+.lc-n3 .lc-line{background:linear-gradient(to bottom,var(--rust),var(--teal))}
+.lc-n3 .lc-stage{color:var(--rust)}
+.lc-n3 .lc-who-pill{background:rgba(160,80,48,0.1);color:var(--rust);border:1px solid rgba(160,80,48,0.2)}
+.lc-n4 .lc-circle{background:rgba(58,112,96,0.1);border-color:var(--teal);color:var(--teal)}
+.lc-n4 .lc-line{background:linear-gradient(to bottom,var(--teal),var(--olive2))}
+.lc-n4 .lc-stage{color:var(--teal)}
+.lc-n4 .lc-who-pill{background:rgba(58,112,96,0.1);color:var(--teal);border:1px solid rgba(58,112,96,0.2)}
+.lc-n5 .lc-circle{background:rgba(90,110,58,0.15);border-color:var(--olive2);color:var(--olive2)}
+.lc-n5 .lc-stage{color:var(--olive2)}
+.lc-n5 .lc-who-pill{background:rgba(90,110,58,0.12);color:var(--olive2);border:1px solid rgba(90,110,58,0.25)}
+
+@media(max-width:480px){
+  .page-inner,.game-inner,.fc-inner{padding-left:16px;padding-right:16px;padding-top:32px}
+  .eas-btn{padding:8px 12px;font-size:12px}
+  .quiz-question{padding:12px;font-size:13px}
+  .lc-circle{width:38px;height:38px;font-size:0.85rem}
+  .lc-left{width:44px}
+  .rev-card-body{padding-left:16px}
+}
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<div id="home" class="view active">
+<div class="page-inner">
+  <div class="home-eyebrow">Certified Pega Decisioning Consultant</div>
+  <div class="home-title">CPDC<br><span>Study Hub</span></div>
+  <p class="home-sub">Three areas. Revise the core concepts, then test yourself with interactive games. Every definition is sourced directly from Pega Academy.</p>
+
+  <div class="section-label">— CDH Basic</div>
+  <div class="topic-list">
+    <div class="topic-item" onclick="goSection('cdhbasic')">
+      <div class="topic-accent ta-olive"></div>
+      <div class="topic-body"><div><div class="topic-name">Core Concepts</div><div class="topic-meta"><span class="meta-pill mp-olive">10 concepts</span><span>Revision + Flashcards</span></div></div><div class="topic-arrow">→</div></div>
+    </div>
+    <div class="topic-item" onclick="goTaxSelect()">
+      <div class="topic-accent ta-teal"></div>
+      <div class="topic-body"><div><div class="topic-name">Action Taxonomy</div><div class="topic-meta"><span class="meta-pill mp-teal">Interactive</span><span>U+ Bank &amp; MyCo hierarchy</span></div></div><div class="topic-arrow" style="color:var(--teal)">→</div></div>
+    </div>
+    <div class="topic-item" onclick="goGame('eas')">
+      <div class="topic-accent ta-brown"></div>
+      <div class="topic-body"><div><div class="topic-name">E, A, S Card Splat</div><div class="topic-meta"><span class="meta-pill mp-brown">Game</span><span>Sort cards into Eligibility, Applicability, Suitability</span></div></div><div class="topic-arrow" style="color:var(--brown)">→</div></div>
+    </div>
+    <div class="topic-item" onclick="goGame('quiz')">
+      <div class="topic-accent ta-rust"></div>
+      <div class="topic-body"><div><div class="topic-name">Contact Policy &amp; Constraints Quiz</div><div class="topic-meta"><span class="meta-pill mp-rust">Quiz</span><span>13 questions — score tracked</span></div></div><div class="topic-arrow" style="color:var(--rust)">→</div></div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+  <div class="section-label">— 1:1 Operations Manager</div>
+  <div class="topic-list">
+    <div class="topic-item" onclick="goSection('opsmanager')">
+      <div class="topic-accent ta-ochre"></div>
+      <div class="topic-body"><div><div class="topic-name">Core Concepts</div><div class="topic-meta"><span class="meta-pill mp-ochre">7 concepts</span><span>Revision + Flashcards</span></div></div><div class="topic-arrow" style="color:var(--ochre)">→</div></div>
+    </div>
+    <div class="topic-item" onclick="goGame('lifecycle')">
+      <div class="topic-accent ta-teal"></div>
+      <div class="topic-body"><div><div class="topic-name">Change Request Lifecycle</div><div class="topic-meta"><span class="meta-pill mp-teal">Interactive</span><span>Tap each stage to reveal details</span></div></div><div class="topic-arrow" style="color:var(--teal)">→</div></div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+  <div class="section-label">— CDH Advanced</div>
+  <div class="topic-list">
+    <div class="topic-item locked"><div class="topic-accent ta-locked"></div><div class="topic-body"><div><div class="topic-name">Decision Strategies</div><div class="topic-meta"><span class="meta-pill mp-locked">Coming soon</span></div></div><div class="topic-arrow">🔒</div></div></div>
+    <div class="topic-item locked"><div class="topic-accent ta-locked"></div><div class="topic-body"><div><div class="topic-name">AI &amp; Adaptive Models</div><div class="topic-meta"><span class="meta-pill mp-locked">Coming soon</span></div></div><div class="topic-arrow">🔒</div></div></div>
+  </div>
+
+  <div style="margin-top:40px;padding:16px;background:var(--card);border:1px solid var(--border);border-radius:10px">
+    <p style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:0.08em;line-height:1.7">All content sourced from official Pega Academy and Pega Docs. Links open on Pega Academy — a free account is required. Exam code: PEGACPDC24V1. <a href="https://academy.pega.com/exam/certified-pega-decisioning-consultant-4" target="_blank" style="color:var(--teal);text-decoration:none">View exam details →</a></p>
+  </div>
+</div>
+</div>
+
+<!-- CDH BASIC REVISION -->
+<div id="cdhbasic" class="view">
+<div class="page-inner">
+  <button class="back-btn" onclick="goHome()">← Back</button>
+  <div class="eyebrow" style="color:var(--olive)">CDH Basic — Core Concepts</div>
+  <div class="big-title" style="font-size:clamp(2rem,7vw,3.8rem);margin-bottom:10px">Core<br><span style="color:var(--olive)">Concepts</span></div>
+  <p style="font-size:13px;color:var(--muted2);margin-bottom:28px;line-height:1.6">Each definition is verified against Pega Academy. Expand any card to see the source link.</p>
+  <div class="rev-grid" id="cdhbasicGrid"></div>
+  <div class="rev-cta"><h3>Ready to test yourself?</h3><p>All 10 concepts covered.</p><button class="cta-btn" onclick="goFlashcards('cdhbasic')">Start Flashcards →</button></div>
+</div>
+</div>
+
+<!-- OPS MANAGER REVISION -->
+<div id="opsmanager" class="view">
+<div class="page-inner">
+  <button class="back-btn" onclick="goHome()">← Back</button>
+  <div class="eyebrow" style="color:var(--ochre)">1:1 Operations Manager — Core Concepts</div>
+  <div class="big-title" style="font-size:clamp(2rem,7vw,3.8rem);margin-bottom:10px">Core<br><span style="color:var(--ochre)">Concepts</span></div>
+  <p style="font-size:13px;color:var(--muted2);margin-bottom:28px;line-height:1.6">Each definition is verified against Pega Academy. Expand any card to see the source link.</p>
+  <div class="rev-grid" id="opsmanagerGrid"></div>
+  <div class="rev-cta"><h3>Ready to test yourself?</h3><p>All 7 concepts covered.</p><button class="cta-btn" onclick="goFlashcards('opsmanager')">Start Flashcards →</button></div>
+</div>
+</div>
+
+<!-- FLASHCARDS -->
+<div id="flashcards" class="view">
+<div class="fc-inner">
+  <button class="back-btn" onclick="fcGoBack()">← Back</button>
+  <div class="fc-header">
+    <div><div class="eyebrow" id="fcEyebrow" style="color:var(--ochre)">Flashcards</div><div class="fc-title" id="fcTitle">Core Concepts</div></div>
+    <div class="fc-progress-wrap"><div class="fc-progress-bar"><div class="fc-progress-fill" id="fcProgressFill" style="width:10%"></div></div><div class="fc-progress-lbl" id="fcProgressLbl">1/10</div></div>
+  </div>
+  <div id="fcCard" class="fc-card">
+    <div class="fc-card-num" id="fcNum">CONCEPT 01</div>
+    <div class="fc-cap-name" id="fcName"></div>
+    <div class="fc-cap-type" id="fcType"></div>
+    <div class="fc-divider" id="fcd1"></div>
+    <div class="fc-section" id="fcs1"><div class="fc-sec-label slabel-def">Definition</div><div class="fc-sec-text" id="fcDef"></div></div>
+    <div class="fc-divider" id="fcd2"></div>
+    <div class="fc-section" id="fcs2"><div class="fc-sec-label slabel-eg">Example</div><div class="fc-sec-text italic" id="fcEg"></div></div>
+    <div class="fc-divider" id="fcd3"></div>
+    <div class="fc-section" id="fcs3"><div class="fc-sec-label slabel-who">Used by</div><div class="fc-sec-text" id="fcWho"></div></div>
+    <div class="fc-prompt" id="fcPrompt"><div class="fc-prompt-dot"></div><span id="fcPromptTxt">Tap reveal to see the definition</span></div>
+  </div>
+  <div class="fc-complete" id="fcComplete">
+    <div class="fc-complete-icon">🎯</div><h2>Deck Complete!</h2>
+    <p>You've worked through all the concepts.</p>
+    <div class="fc-complete-btns">
+      <button class="btn-reveal btn-nav" onclick="fcRestart()">Play again</button>
+      <button class="btn-nav" onclick="fcGoBack()">Back to revision</button>
+      <button class="btn-nav" onclick="goHome()">Home</button>
+    </div>
+  </div>
+  <div class="fc-nav">
+    <button class="btn-nav" id="fcPrev" onclick="fcPrev()" disabled>← Prev</button>
+    <div class="fc-dots"><div class="fc-dot" id="fcdot1"></div><div class="fc-dot" id="fcdot2"></div><div class="fc-dot" id="fcdot3"></div></div>
+    <button class="btn-nav btn-reveal" id="fcReveal" onclick="fcReveal()">Reveal ↓</button>
+  </div>
+</div>
+</div>
+
+<!-- TAXONOMY SELECT -->
+<div id="taxSelect" class="view">
+<div class="page-inner">
+  <button class="back-btn" onclick="goHome()">← Back</button>
+  <div class="eyebrow" style="color:var(--teal);margin-bottom:10px">Action Taxonomy</div>
+  <div class="big-title" style="font-size:clamp(2.2rem,7vw,5rem);margin-bottom:10px">Choose a<br><span style="color:var(--teal)">Company</span></div>
+  <p style="font-size:13px;color:var(--muted2);line-height:1.6;max-width:420px;margin-bottom:4px">Explore the full Issue → Group → Action → Treatment → Channel hierarchy. Each layer reveals as you go.</p>
+  <div class="company-grid">
+    <div class="company-card ubank" onclick="window.location.href='taxonomy_ubank.html'">
+      <div class="company-icon">🏦</div><div class="company-name">U+ Bank</div>
+      <p class="company-desc">Retail bank. The primary example throughout the CPDC course.</p>
+      <div class="company-tags"><span class="ctag ctag-olive">Grow</span><span class="ctag ctag-olive">Retain</span><span class="ctag ctag-olive">Credit Cards</span></div>
+    </div>
+    <div class="company-card myco" onclick="window.location.href='taxonomy_myco.html'">
+      <div class="company-icon">📱</div><div class="company-name">MyCo</div>
+      <p class="company-desc">Telco. Used in arbitration and channel exam scenarios.</p>
+      <div class="company-tags"><span class="ctag ctag-ochre">Sales</span><span class="ctag ctag-ochre">Data Plans</span><span class="ctag ctag-ochre">Handsets</span></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- EAS GAME -->
+<div id="easGame" class="view">
+<div class="game-inner">
+  <button class="back-btn" onclick="goHome()">← Back</button>
+  <div class="eyebrow" style="color:var(--brown)">CDH Basic — Game</div>
+  <div class="game-title">E, A, S<br><span style="color:var(--brown)">Card Splat</span></div>
+  <p class="game-sub">Filter by layer to highlight cards, then tap any card to flip it and reveal which layer it belongs to and why. Source: <a href="https://academy.pega.com/topic/customer-engagement-policies/v1" target="_blank" style="color:var(--teal)">Pega Academy — Customer Engagement Policies</a></p>
+  <div class="eas-btns">
+    <button class="eas-btn all active" onclick="easFilter('all')">Show All</button>
+    <button class="eas-btn e" onclick="easFilter('e')">Eligibility</button>
+    <button class="eas-btn a" onclick="easFilter('a')">Applicability</button>
+    <button class="eas-btn s" onclick="easFilter('s')">Suitability</button>
+  </div>
+  <div class="eas-grid" id="easGrid"></div>
+</div>
+</div>
+
+<!-- QUIZ GAME -->
+<div id="quizGame" class="view">
+<div class="game-inner">
+  <button class="back-btn" onclick="goHome()">← Back</button>
+  <div class="eyebrow" style="color:var(--rust)">CDH Basic — Quiz</div>
+  <div class="game-title">Contact Policy<br><span style="color:var(--rust)">&amp; Constraints</span></div>
+  <p class="game-sub" style="margin-bottom:20px">13 questions. No hints until after you answer. Source: <a href="https://academy.pega.com/topic/next-best-action-designer/v2" target="_blank" style="color:var(--teal)">Pega Academy — NBA Designer (Constraints tab)</a></p>
+  <div class="quiz-score-bar"><span class="quiz-score-lbl">Score</span><span class="quiz-score-val" id="quizScoreDisplay">0 / 0</span></div>
+  <div id="quizContainer"></div>
+  <div class="quiz-end" id="quizEnd">
+    <div class="quiz-end-score" id="quizFinalScore">0/13</div>
+    <div class="quiz-end-lbl">final score</div>
+    <div class="quiz-end-msg" id="quizEndMsg"></div>
+    <button class="cta-btn" onclick="quizRestart()">Try again</button>
+  </div>
+</div>
+</div>
+
+<!-- LIFECYCLE GAME -->
+<div id="lifecycleGame" class="view">
+<div class="game-inner">
+  <button class="back-btn" onclick="goHome()">← Back</button>
+  <div class="eyebrow" style="color:var(--teal)">1:1 Operations Manager — Interactive</div>
+  <div class="game-title">Change Request<br><span style="color:var(--teal)">Lifecycle</span></div>
+  <p class="game-sub">The six official stages every change goes through in 1:1 Ops Manager. Tap each to expand. Source: <a href="https://docs.pega.com/pega-11-operations-manager-user-guide/87/understanding-change-request-flow" target="_blank" style="color:var(--teal)">Pega Docs — Understanding the change request flow</a></p>
+  <div class="lifecycle-wrap"><div class="lifecycle-diagram" id="lifecycleDiagram"></div></div>
+</div>
+</div>
+
+<script>
+// ===== ALL DATA =====
+const DATA = {
+  cdhbasic:{
+    title:'CDH Basic',eyebrowColor:'var(--olive)',
+    concepts:[
+      {name:'Next-Best-Action Designer',type:'CORE TOOL',
+       def:'The central configuration interface in CDH. You use it to define taxonomy (Issues, Groups, Actions), set engagement policies, configure arbitration, and activate channels. Every NBA decision is driven by settings made here. Pega describes it as using "proven best practices and sophisticated underlying decisioning technology to automatically deliver personalized customer experiences across inbound, outbound, and paid channels."',
+       eg:'U+ Bank configures the Gold Card offer in NBA Designer — who is eligible (18+, existing customer, no current card), how it is ranked (propensity × business value), and which real-time container serves it to the website.',
+       who:'Decisioning Architect (build); NBA Designer role (BAU changes)',
+       extra:'New actions get only 2% of audience exposure while the AI model matures, increasing to 100% after 200+ positive responses. A model propensity starts at 0.5 (flip of a coin) with no evidence.',
+       src:'https://academy.pega.com/topic/pega-customer-decision-hub-basics/v2',srcLabel:'Pega Academy — CDH Basics'},
+      {name:'Real-Time Containers',type:'INTEGRATION',
+       def:'A named service that manages communication between CDH and an external inbound channel. When a channel (website, app, call centre) needs a next best action, it calls the container by name. CDH evaluates the relevant issues and groups and returns the action and treatment details. It also records impressions and click-throughs back into Interaction History.',
+       eg:"U+ Bank's website calls a container named 'TopOffers' before loading the account page. CDH responds with the Rewards Plus Card details for that customer — image, description, relevant attributes.",
+       who:'Decisioning Architect (configures); channel/web team (integrates)',
+       extra:"Impression capture can be set to 'Captured on retrieval' (CDH records immediately) or 'Captured by channel' (channel explicitly tells CDH when to record).",
+       src:'https://academy.pega.com/topic/real-time-containers/v1',srcLabel:'Pega Academy — Real-Time Containers'},
+      {name:'Decision Funnel',type:'DIAGNOSTIC VIEW',
+       def:'A visual report inside Value Finder and Audience Simulation that shows how many customers pass through or are filtered out at each stage of the engagement policy — Eligibility, then Applicability, then Suitability — before arbitration picks the winner. The number drops at each stage, creating a funnel shape.',
+       eg:'1000 U+ Bank customers enter. 989 pass Eligibility. 834 pass Applicability. 507 pass Suitability. 182 receive an offer. The funnel shows exactly where the 818 dropped out.',
+       who:'NBA Analyst / NBA Designer (diagnosing why customers are not receiving actions)',
+       extra:'Value Finder categorises customers as "not-engaged" (receiving no actions), "under-engaged" (receiving only low-propensity actions), and "well-engaged". It then suggests specific policy changes to fix each.',
+       src:'https://academy.pega.com/topic/pega-value-finder-simulation/v1',srcLabel:'Pega Academy — Value Finder Simulation'},
+      {name:'Persona Testing',type:'TESTING FEATURE',
+       def:'A testing capability in NBA Designer that simulates next best action decisions against a fictional customer profile (a persona) without using real customer data. You define the customer attributes, run the decision, and see exactly which actions are offered, which are filtered out, and why — including which engagement policy condition blocked each action.',
+       eg:"Create 'Troy — 25, chef, new customer, credit score 600, financially vulnerable'. Run the decision and verify he gets the Rewards Card but not the Rewards Plus Card (credit score below 750 suitability threshold).",
+       who:'Decisioning Architect / NBA Designer (pre-go-live validation and regression testing after changes)',
+       extra:'Personas can be created from existing real customers, from a file in bulk, or manually. The CDH GenAI AI Insight feature explains results in plain language when testing in Customer Profile Viewer.',
+       src:'https://academy.pega.com/topic/testing-engagement-policy-configurations-persona-test-cases/v1',srcLabel:'Pega Academy — Persona Test Cases'},
+      {name:'Engagement Policy',type:'CORE CONCEPT',
+       def:'A set of rule-based filters that determine whether an action can be offered to a customer. Three layers, evaluated in strict order: Eligibility (hard external/legal rules — what is even possible to offer), Applicability (business practices — what makes sense right now), Suitability (ethical/empathetic — what is appropriate for this customer). All three must pass before the action enters arbitration.',
+       eg:'Eligibility: customer must be 18+ and a current customer. Applicability: must not already hold a credit card. Suitability: must not be financially vulnerable and credit score must be above threshold. Troy fails Suitability — he is financially vulnerable — so the high-limit card is not offered.',
+       who:'Decisioning Architect (configures); NBA Designer (BAU policy updates)',
+       extra:'Pega explicitly classifies these in order of strictness: Eligibility = "hardest" rules, Applicability = "not as hard", Suitability = "least hard but represent what the business should and should not do ethically and empathetically".',
+       src:'https://academy.pega.com/topic/customer-engagement-policies/v1',srcLabel:'Pega Academy — Customer Engagement Policies'},
+      {name:'Arbitration',type:'CORE CONCEPT',
+       def:'The final ranking stage that runs after all engagement policy filters. Uses the formula P × C × V × L — Propensity (AI-predicted likelihood of acceptance, 0–1), Context Weighting (situational boost, e.g. retention context), Business Value (financial value of the action), Business Levers (manual boost to meet business priorities). The action with the highest score wins.',
+       eg:'Barbara qualifies for Premier Rewards (propensity 0.14, business value £100) and Rewards Plus (propensity 0.75, business value £50). Rewards Plus priority = 0.75 × 1 × 50 × 1 = 37.5. Premier Rewards = 0.14 × 1 × 100 × 1 = 14. Rewards Plus wins despite lower value.',
+       who:'Decisioning Architect (configures formula and lever settings)',
+       extra:'Business levers are a double-edged tool — Impact Analyzer has a specific experiment to check whether your levers are actually helping or hurting value capture vs no-lever arbitration. A 55% lever weighting becomes a multiplier of 1.55.',
+       src:'https://academy.pega.com/topic/action-arbitration/v3',srcLabel:'Pega Academy — Action Arbitration'},
+      {name:'Value Finder',type:'DISCOVERY TOOL',
+       def:'A simulation tool that identifies "underserved" customers — those receiving no actions or only very low-propensity actions after all engagement policies are applied. Shows exactly which stage of the decision funnel is responsible for dropping customers, so you fix the right policy at the right level.',
+       eg:'Value Finder shows 327 U+ Bank customers are dropped at Suitability (credit score condition). The team sees that loosening the threshold by 50 points would re-engage 200 of those customers. They run a Scenario Planner simulation to confirm before changing anything.',
+       who:'NBA Analyst / NBA Designer (coverage optimisation, BAU health checks)',
+       extra:'Value Finder is specifically useful for empathy-driven optimisation — finding customers who should be offered something but currently receive nothing, and diagnosing whether it is a policy or product gap.',
+       src:'https://academy.pega.com/topic/pega-value-finder-simulation/v1',srcLabel:'Pega Academy — Value Finder'},
+      {name:'Impact Analyzer',type:'DISCOVERY TOOL',
+       def:'A proactive monitoring tool that uses built-in control groups and Thompson Sampling to measure whether the NBA strategy is delivering real lift compared to doing nothing. Runs continuously in the background. Shows value lift and engagement lift over time and flags underperforming actions before they become a business problem.',
+       eg:'Impact Analyzer shows U+ Bank credit card offers deliver +40% engagement lift over the control group. Mortgage offers show -16% value lift — meaning the current engagement policies are costing the bank value. This triggers a policy review.',
+       who:'NBA Analyst / NBA Designer (ongoing production health monitoring)',
+       extra:'Impact Analyzer runs four built-in experiments: AI vs Random, AI vs Eligibility-only, Business Levers vs No Levers, and Constraints vs No Constraints. Each experiment isolates one variable to show its contribution to performance.',
+       src:'https://academy.pega.com/topic/investigating-effect-applying-engagement-policies/v1',srcLabel:'Pega Academy — Impact Analyzer Experiments'},
+      {name:'Scenario Planner',type:'DISCOVERY TOOL',
+       def:'A what-if simulation tool that forecasts the impact of a proposed change before it goes live. You run a baseline simulation, make a proposed change (e.g. tighten an eligibility condition, boost a business lever), run a second simulation, and compare the projected value capture, reach and accepts side by side.',
+       eg:'U+ Bank wants to tighten Standard Card eligibility. Scenario Planner shows the change would reduce audience reach by 30% and projected value by £12k per month. The team reconsiders the threshold and tests a softer version.',
+       who:'NBA Designer / NBA Analyst (used at the change request review stage, before any change goes to production)',
+       extra:'Scenario Planner shows three KPIs: projected value capture, projected accepts, and projected reach. It uses actual Interaction History data combined with audience simulation to make its forecasts as realistic as possible.',
+       src:'https://academy.pega.com/topic/pega-scenario-planner/v2',srcLabel:'Pega Academy — Scenario Planner'},
+      {name:'Interaction History',type:'DATA STORE',
+       def:'The central record of every customer interaction and outcome across all channels — every impression (action shown), click (customer engaged), accept (customer converted) and reject (customer declined). Recorded in real time. Powers adaptive AI models, contact policies, suppression rules and all reporting in CDH.',
+       eg:"When Barbara clicks the Rewards Plus Card banner on the U+ Bank website, CDH records a click event in Interaction History. The adaptive model (Web_Click_Through_Rate) updates Barbara's propensity score for the next visit.",
+       who:'Decisioning Architect (configures summaries and tracking periods); Data Scientist (monitors model performance from IH data)',
+       extra:'Interaction History is also used to calculate Interaction History Summaries — aggregated counts over rolling time periods (e.g. "number of credit card impressions in last 30 days") that drive contact policies and suppression rules.',
+       src:'https://academy.pega.com/topic/real-time-containers/v1',srcLabel:'Pega Academy — Real-Time Containers (IH recording)'}
+    ]
+  },
+  opsmanager:{
+    title:'1:1 Operations Manager',eyebrowColor:'var(--ochre)',
+    concepts:[
+      {name:'Change Request',type:'WORKFLOW CONCEPT',
+       def:'A structured, governed request used to introduce or modify any NBA artifact — an action, treatment, engagement policy, or strategy. Captures the business intent in plain language and drives it through a controlled Plan → Build → Test → Deploy workflow with a full audit trail. The system automatically moves the request between stages as tasks are completed.',
+       eg:'A business user raises a Change Request to increase the cashback on the Rewards Plus Card from 1% to 2% and tighten the Debt-to-Income eligibility condition from 50% to 40%.',
+       who:'Business User / NBA Analyst (raises); NBA Specialist (builds); Team Lead (approves)',
+       extra:'Two types of change requests exist: Action change requests (full workflow) and Change Prediction requests (simplified workflow — created automatically when a Data Scientist approves a model change in Prediction Studio).',
+       src:'https://docs.pega.com/pega-11-operations-manager-user-guide/87/understanding-change-request-flow',srcLabel:'Pega Docs — Change Request Flow'},
+      {name:'Lifecycle of a Change Request',type:'PROCESS',
+       def:'The six official stages every action change request goes through: Request (raised by any team member), Approve (Team Lead reviews, ranks and approves), Plan (requirements refined and groomed), Build (NBA Specialist implements in 1:1 Ops Manager or CDH), Test (validated against acceptance criteria), Deploy (Team Lead approves and Revision Manager releases to production).',
+       eg:'MyCo plans a new Student Data Plan offer. Business User raises request. Team Lead approves and ranks it. NBA Analyst refines scope. NBA Specialist builds the action and treatment. Persona tests validate the eligibility conditions. Team Lead deploys.',
+       who:'Business User → Team Lead → NBA Analyst → NBA Specialist → Team Lead → Revision Manager',
+       extra:'An optional Pending Compliance stage can be inserted between Test and Deploy where a Team Lead reviews compliance audit results before the change is allowed to proceed to production.',
+       src:'https://docs.pega.com/pega-11-operations-manager-user-guide/87/understanding-change-request-flow',srcLabel:'Pega Docs — Understanding the Change Request Flow'},
+      {name:'Reach Explorer',type:'PLANNING TOOL',
+       def:'A tool that estimates the number of customers who would be eligible for a specific action based on current engagement policies and customer data. Used during the planning stage of a change request to validate that the targeting is right before any build work begins.',
+       eg:"Before launching the Free 2GB Data Offer, MyCo's NBA Analyst uses Reach Explorer to confirm 45,000 customers would qualify under the proposed eligibility rules — large enough to justify the build effort.",
+       who:'NBA Analyst / Business User (planning stage validation)',
+       extra:'Reach Explorer queries customer data live against the proposed engagement policy conditions. It helps avoid building actions with near-zero reach — a common waste of build effort.',
+       src:'https://academy.pega.com/topic/pega-customer-decision-hub-basics/v1',srcLabel:'Pega Academy — CDH Basics'},
+      {name:'Brand Voice',type:'GOVERNANCE FEATURE',
+       def:'A governance framework using global directives configured in CDH to standardise the tone, language and style of all AI-generated content and customer messages. When GenAI generates offer copy or email content, it checks it against the Brand Voice directives before surfacing it to the user.',
+       eg:"U+ Bank's Brand Voice directives specify plain English, no aggressive sales language, and compliance with FCA financial promotion rules. All GenAI-generated email subject lines and offer messages are automatically checked against these before the NBA Specialist sees them.",
+       who:'Business Content Team / Brand team (defines directives); CDH enforces automatically for all GenAI-generated content',
+       extra:'Brand Voice is part of Pega\'s governed AI approach — ensuring that the flexibility of generative AI does not compromise brand consistency or regulatory compliance at scale.',
+       src:'https://academy.pega.com/mission/pega-customer-decision-hub-foundation/v6',srcLabel:'Pega Academy — CDH Foundation Mission'},
+      {name:'Persona Management',type:'TESTING CAPABILITY',
+       def:'The dedicated landing page in CDH where fictional customer profiles (personas) are created, stored and managed. Personas are reusable across all testing activities — engagement policy validation, arbitration checks, and regression testing after changes. They can be created manually, from a file in bulk, or cloned from a real existing customer.',
+       eg:"U+ Bank maintains standard personas: 'Mature Low Risk Financially Invulnerable' (Barbara, 40, engineer, credit score 800) and 'Young High Risk Financially Vulnerable' (Troy, 25, chef, credit score 600). Every new action is tested against both before deployment.",
+       who:'Decisioning Architect / NBA Designer (creates and maintains)',
+       extra:'Personas only contain raw customer property values — they do not include channel context. A separate Channel Context object is needed to also specify the direction, channel and real-time container for a complete test.',
+       src:'https://academy.pega.com/topic/testing-next-best-action-persona-and-channel-context/v1',srcLabel:'Pega Academy — Persona & Channel Context Testing'},
+      {name:'CDH Assistant',type:'AI TOOL',
+       def:'An AI-powered conversational help tool built directly into CDH. It answers questions about your application — containers, channels, actions, performance metrics — and searches the full Pega documentation library to provide contextual, source-linked answers. It can also explain AI model decisions and configuration health.',
+       eg:"An NBA Specialist asks: 'Why is the Standard Card not showing for customers under 25?' CDH Assistant responds with the specific eligibility condition that is blocking it and links to the relevant engagement policy configuration.",
+       who:'Any CDH user — particularly NBA Specialists and Analysts who need quick contextual answers without switching to documentation',
+       extra:'CDH Assistant is part of Pega\'s broader push to make CDH self-service for less technical users. It covers configuration questions, troubleshooting, and "what does this metric mean?" queries.',
+       src:'https://academy.pega.com/topic/pega-customer-decision-hub-basics/v1',srcLabel:'Pega Academy — CDH Basics'},
+      {name:'Release Management',type:'DEPLOYMENT CONCEPT',
+       def:'The controlled process of grouping approved changes into a revision and promoting them through deployment pipelines to production. Organisations choose between a faster release cadence for agility (simpler changes, less governance overhead) or a standard release with full peer review, compliance checks and sign-off.',
+       eg:'U+ Bank uses fast releases for simple content changes like updating an offer image or changing a headline. Strategy changes — new decision logic, new engagement policy conditions — go through a standard release with full peer review and Scenario Planner validation.',
+       who:'Team Lead (approves and triggers releases); Revision Manager (promotes to production); Lead Decisioning Architect (governs release standards)',
+       extra:'All changes are grouped into a Revision before deployment. A Revision Manager role in CDH controls when revisions are opened and closed. Once closed, changes in that revision are promoted through the pipeline.',
+       src:'https://academy.pega.com/topic/agility-best-practices/v1',srcLabel:'Pega Academy — Agility Best Practices'}
+    ]
+  }
+};
+
+const EAS_CARDS = [
+  {text:'Must be 18 or older',cat:'e',why:'Age is a legal/external hard rule. The customer either meets the minimum requirement or they do not — no grey area.',src:'https://academy.pega.com/topic/customer-engagement-policies/v1'},
+  {text:'Must be an existing customer',cat:'e',why:'Customer status is a fundamental external condition — non-customers are simply outside the scope of this action entirely.',src:'https://academy.pega.com/topic/defining-eligibility-applicability-and-suitability-rules/v2'},
+  {text:'Contract must end within 3 months',cat:'e',why:'Contract timing is an objective, external, hard criterion. Pega Academy uses this exact example: "customers are eligible for a new contract only if their old contract ends in less than three months."',src:'https://academy.pega.com/topic/customer-engagement-policies/v1'},
+  {text:'Must be a UK resident',cat:'e',why:'Geographic residency is typically a legal or regulatory hard rule — not a business preference. It determines what is even possible to offer.',src:'https://academy.pega.com/topic/customer-engagement-policies/v1'},
+  {text:'Already has a Platinum card',cat:'a',why:'Pega Academy uses this exact example: "If a customer already has a Platinum Card, they might be eligible for the Gold Card, but the Gold Card is not applicable to them." Business preference, not a hard legal rule.',src:'https://academy.pega.com/topic/customer-engagement-policies/v1'},
+  {text:'Already has a credit card',cat:'a',why:"The bank's strategy is to cross-sell to customers without an existing card. This is a business practice, not a legal requirement — it could change tomorrow if the strategy changed.",src:'https://academy.pega.com/challenge/defining-customer-engagement-policies/v1'},
+  {text:'Customer said not interested in iPhone',cat:'a',why:"Pega Academy's exact example: 'If a customer explicitly expressed in the last survey that they weren't interested in an iPhone, this action is not applicable to them.' Stated preference = applicability.",src:'https://academy.pega.com/topic/customer-engagement-policies/v1'},
+  {text:'Offer not available on this channel',cat:'a',why:'Channel availability is a business constraint — the action exists but the business has chosen not to activate it on this channel. A business decision, not a legal one.',src:'https://academy.pega.com/topic/customer-engagement-policies/v1'},
+  {text:'Set-top box not HD-capable',cat:'a',why:"Pega Academy's example: the business does not want to advertise HD channels to a customer who recently bought a non-HD set-top box. Business logic — not a hard rule, not an ethical concern.",src:'https://academy.pega.com/topic/customer-engagement-policies/v1'},
+  {text:'Discount irrelevant if already owns card',cat:'a',why:'Offering a sign-up discount to someone who already holds the card makes no business sense — classic applicability. The customer is eligible, the offer just is not relevant right now.',src:'https://academy.pega.com/topic/customer-engagement-policies/v1'},
+  {text:'Debt-to-income ratio too high',cat:'s',why:"Pega Academy's exact example: 'a customer whose debt-to-income ratio is below a certain threshold' — offering credit to someone already financially stretched is an empathy/ethics call, not a legal one.",src:'https://academy.pega.com/topic/customer-engagement-policies/v1'},
+  {text:'Financially vulnerable customer',cat:'s',why:"Troy is financially vulnerable in the U+ Bank course example. A credit card offer is filtered out at Suitability — 'Suitability rules represent what the business should and should not do ethically and empathetically.'",src:'https://academy.pega.com/challenge/exploring-cross-sell-web/v10'},
+  {text:'Low data usage — unlimited plan not suitable',cat:'s',why:"Pega Academy's exact example: 'an unlimited data plan is not suitable to be offered to a customer with low Internet usage.' Customer would not benefit — an empathy call.",src:'https://academy.pega.com/topic/customer-engagement-policies/v1'},
+  {text:'Already holds Premier Rewards card',cat:'s',why:'Offering a competing or lesser rewards card to someone already on the premium tier would be unsuitable and potentially confusing or insulting.',src:'https://academy.pega.com/topic/customer-engagement-policies/v1'},
+  {text:'Credit score below 500',cat:'s',why:'A credit score this low signals serious financial risk. Offering credit would not be empathetic or responsible lending — Suitability blocks it on ethical grounds.',src:'https://academy.pega.com/topic/defining-eligibility-applicability-and-suitability-rules/v2'},
+  {text:'Credit score below 750 — Rewards Plus not suitable',cat:'s',why:"From the U+ Bank course: Rewards Plus has a credit score suitability threshold of 750. Below that, it's not appropriate for this customer at this time — an ethical/empathy rule.",src:'https://academy.pega.com/challenge/defining-customer-engagement-policies/v1'}
+];
+
+const QUIZ = [
+  {q:"U+ Bank sends a credit card offer email. Contact policy = max 1 per 7 days. Customer received an email 5 days ago. What happens?",opts:["The new offer email is sent","No email — still within contact policy window","Both emails sent","A follow-up email only"],correct:1,hint:"Still within the 7-day suppression window. Contact policy counts calendar days since last contact on any action in the group."},
+  {q:"1000 customers in a batch. Contact policy = max 1 per 7 days. 300 received an email 4 days ago. 200 received one 10 days ago. 500 never received anything. How many emails go out?",opts:["1000","700","500","200"],correct:1,hint:"300 are still inside the 7-day window so are suppressed. The 200 who received one 10 days ago are clear. 500 have never been contacted. 200 + 500 = 700 go out."},
+  {q:"Customer eligible for Offer A and Offer B. Offer A contact policy = max 2 impressions per 30 days, shown twice already. Offer B contact policy = max 1 per 14 days, last shown 15 days ago. Which offer is shown?",opts:["Offer A","Offer B","Both","Neither"],correct:1,hint:"Offer A has hit its 2-impression limit — exhausted. Offer B cleared its 14-day window (15 days > 14). Offer B is the only surviving action."},
+  {q:"500 customers targeted. 100 accepted the offer within last 30 days. Contact policy = suppress for 60 days after acceptance. How many emails go out?",opts:["500","400","100","0"],correct:1,hint:"100 customers are within the 60-day post-acceptance suppression window. The remaining 400 have no suppression applied."},
+  {q:"Two actions: Gold Card (contact policy max 1 per 10 days, last sent 11 days ago, propensity 0.72) and Silver Card (max 1 per 5 days, last sent 3 days ago, propensity 0.88). What does CDH present?",opts:["Silver — higher propensity","Gold — only action that cleared contact policy","Both available — Gold wins on propensity","Neither — both suppressed"],correct:1,hint:"Silver is within its 5-day window (3 < 5) so suppressed. Gold cleared (11 > 10). Gold is the only surviving action — propensity is irrelevant when only one action remains."},
+  {q:"Batch of 800 customers. Contact policy = max 3 emails per 30 days. 200 have received 3 this month. 300 have received 2. 300 have received 0. How many go out today?",opts:["800","600","300","200"],correct:1,hint:"200 customers are at the maximum (3/3) and are suppressed. The other 600 (300 with 2, 300 with 0) are still under the limit."},
+  {q:"Contact policy = suppress for 30 days after rejection. Customer rejected the offer 20 days ago. They visit the website today. What happens?",opts:["Offer shown — rejection resets the timer","Offer suppressed — still within 30-day window","Offer shown — web channel ignores contact policy","A different next best offer from the group is shown"],correct:1,hint:"The 30-day post-rejection suppression window has not expired (20 < 30 days). The offer is suppressed regardless of channel."},
+  {q:"U+ Bank targets 1000 customers across email and SMS. Contact policy applies CROSS-CHANNEL — max 1 per 7 days. 400 received an email 3 days ago. 600 have had no contact. How many messages go out?",opts:["1000","600","400","0"],correct:1,hint:"The cross-channel contact policy blocks the 400 who received any contact 3 days ago — regardless of channel. 600 with no recent contact go out."},
+  {q:"Customer eligible for three offers. Offer A — dismissed 5 times, contact policy suppresses after 3 dismissals. Offer B — contact policy clear, propensity 0.65. Offer C — contact policy clear, propensity 0.81. What does CDH show?",opts:["Offer A","Offer B","Offer C","Offer A — dismissals reset the contact policy"],correct:2,hint:"Offer A is suppressed (exceeded 3-dismissal limit). Offers B and C both clear. Offer C wins on higher propensity (0.81 > 0.65)."},
+  {q:"2000 customers. 500 accepted last week (suppress 90 days post-acceptance). 300 rejected 2 days ago (suppress 14 days post-rejection). 200 at max 2 emails this month (max 2/month). 1000 no prior contact. How many go out?",opts:["2000","1000","1200","1500"],correct:1,hint:"500 (post-acceptance) + 300 (post-rejection) + 200 (monthly cap) = 1000 suppressed for different reasons. 1000 with no prior contact go out."},
+  {q:"Five offers. Platinum: vol 500/500 (hit). Gold: vol 600/600 (hit). Silver: vol 400/380, last sent 6 days, policy max 1/5 days, propensity 0.83. Bronze: vol 300/290, last sent 8 days, policy max 1/6 days, propensity 0.76. Basic: vol 450/430, last sent 4 days, policy max 1/9 days, propensity 0.68. What does CDH present?",opts:["Platinum","Gold","Silver","Bronze"],correct:2,hint:"Platinum and Gold: volume caps hit — both eliminated. Basic: 4 < 9 days — blocked by contact policy. Silver: 6 > 5 days ✓ cleared. Bronze: 8 > 6 days ✓ cleared. Silver and Bronze survive. Silver wins on propensity 0.83 vs 0.76."},
+  {q:"Five offers. Platinum: vol 500/500 (hit). Gold: vol 800/760, last sent 8 days, policy max 1/7 days, propensity 0.85. Silver: vol 600/580, last sent 5 days, policy max 1/4 days, propensity 0.79. Bronze: vol 400/390, last sent 11 days, policy max 1/9 days, propensity 0.72. Basic: vol 300/280, last sent 3 days, policy max 1/6 days, propensity 0.61. What does CDH present?",opts:["Gold","Silver","Bronze","Basic"],correct:0,hint:"Platinum: volume hit. Basic: 3 < 6 days — blocked. Gold: 8 > 7 ✓. Silver: 5 > 4 ✓. Bronze: 11 > 9 ✓. All three survive. Gold wins on highest propensity 0.85."},
+  {q:"Five offers. Platinum: vol 500/499, last sent 5 days, policy max 1/7 days. Gold: vol 700/650, last sent 14 days, policy max 1/10 days, propensity 0.86. Silver: vol 400/400 (hit). Bronze: vol 600/570, last sent 4 days, policy max 1/3 days, propensity 0.74. Basic: vol 300/280, last sent 15 days, policy max 1/10 days, propensity 0.61. What does CDH present?",opts:["Platinum","Gold","Bronze","Basic"],correct:1,hint:"Silver: volume hit. Platinum: 5 < 7 days — blocked by contact policy. Gold: 14 > 10 ✓. Bronze: 4 > 3 ✓. Basic: 15 > 10 ✓. Gold, Bronze, Basic survive. Gold wins on propensity 0.86."}
+];
+
+const LIFECYCLE = [
+  {stage:'Request',icon:'R',who:'Business User / NBA Analyst',
+   what:'Any team member raises a change request in 1:1 Operations Manager, capturing the business requirement in plain terms — what needs to change and why. No technical detail required.',
+   bullets:['Business User or NBA Analyst creates the request','Describes the change in business language','Sets a completion date','System creates the case and notifies the Team Lead'],
+   src:'https://docs.pega.com/pega-11-operations-manager-user-guide/87/understanding-change-request-flow'},
+  {stage:'Approve',icon:'A',who:'Team Lead',
+   what:'The Team Lead reviews the request, assigns a priority rank, identifies stakeholders and peer reviewers, and formally approves it to move forward — or rejects it back to the requester.',
+   bullets:['Team Lead reviews business intent and feasibility','Assigns rank/priority','Adds peer reviewers if required','Approves or rejects (rejected returns to requester)'],
+   src:'https://docs.pega.com/pega-11-operations-manager-user-guide/87/understanding-change-request-flow'},
+  {stage:'Plan',icon:'P',who:'NBA Analyst / Team Lead',
+   what:'The approved request is groomed in detail. Acceptance criteria are defined, scope confirmed, and any dependencies (e.g. a new audience segment needing to be built first) are identified and tracked as sub-requests.',
+   bullets:['NBA Analyst refines requirements detail','Acceptance criteria documented','Dependencies identified (e.g. audience build)','Sub-requests created for dependencies','Change moves to Build when plan is confirmed'],
+   src:'https://docs.pega.com/pega-11-operations-manager-user-guide/87/understanding-change-request-flow'},
+  {stage:'Build',icon:'B',who:'NBA Specialist',
+   what:'The NBA Specialist implements the change in 1:1 Operations Manager — creating or updating actions, treatments, and engagement policy conditions per the acceptance criteria. For complex changes, they may switch to the full CDH portal.',
+   bullets:['NBA Specialist picks up build tasks','Creates/updates actions, treatments, eligibility conditions','Can switch to CDH portal for complex strategy changes','Peer review may happen in parallel','Submits for final review when complete'],
+   src:'https://docs.pega.com/pega-11-operations-manager-user-guide/87/understanding-change-request-flow'},
+  {stage:'Test',icon:'T',who:'NBA Specialist / NBA Designer',
+   what:'An extension point where the team validates the implemented change against acceptance criteria. Persona tests and audience simulations are used to confirm expected behaviour before any deployment.',
+   bullets:['Validate against acceptance criteria','Run persona tests to confirm decision outcomes','Audience simulation to check policy impact','Failures return to Build stage','NBA Specialist confirms test completion'],
+   src:'https://docs.pega.com/pega-11-operations-manager-user-guide/87/understanding-change-request-flow'},
+  {stage:'Deploy',icon:'D',who:'Team Lead / Revision Manager',
+   what:'The Team Lead reviews the completed, tested change and submits it for deployment. The Revision Manager groups it into a revision and promotes it through the deployment pipeline to production.',
+   bullets:['Team Lead reviews all completed tasks','Approves the change for release','Revision Manager merges into production revision','Changes go live in production','Outbound schedules activated if applicable'],
+   src:'https://docs.pega.com/pega-11-operations-manager-user-guide/87/understanding-change-request-flow'}
+];
+
+// ===== NAVIGATION =====
+let fcDataKey='cdhbasic';
+function showView(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+function goHome(){showView('home')}
+function goTaxSelect(){showView('taxSelect')}
+function goSection(key){buildRevision(key);showView(key)}
+function goFlashcards(key){fcDataKey=key;fcLoad(0);showView('flashcards')}
+function fcGoBack(){showView(fcDataKey)}
+function goGame(key){
+  if(key==='eas'){buildEAS();showView('easGame')}
+  else if(key==='quiz'){buildQuiz();showView('quizGame')}
+  else if(key==='lifecycle'){buildLifecycle();showView('lifecycleGame')}
+}
+
+// ===== REVISION =====
+function buildRevision(key){
+  const grid=document.getElementById(key+'Grid');
+  if(grid.dataset.built)return;
+  grid.dataset.built='1';
+  DATA[key].concepts.forEach((cap,i)=>{
+    const card=document.createElement('div');
+    card.className='rev-card';
+    card.innerHTML=`
+      <div class="rev-card-header" onclick="this.parentElement.classList.toggle('open')">
+        <span class="rev-num">${String(i+1).padStart(2,'0')}</span>
+        <span class="rev-cap-name">${cap.name}</span>
+        <span class="rev-cap-type">${cap.type}</span>
+        <span class="rev-chevron">▾</span>
+      </div>
+      <div class="rev-card-body">
+        <div class="rev-def">${cap.def}</div>
+        <div class="rev-example">${cap.eg}</div>
+        <div class="rev-who">Used by: ${cap.who}</div>
+        ${cap.extra?`<div class="rev-extra">${cap.extra}</div>`:''}
+        <a href="${cap.src}" target="_blank" class="src-link">↗ Source: ${cap.srcLabel}</a>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+// ===== FLASHCARDS =====
+let fcCurrent=0,fcRevealed=0;
+function fcLoad(idx){
+  const concepts=DATA[fcDataKey].concepts;
+  fcCurrent=idx;fcRevealed=0;
+  const cap=concepts[idx];
+  const d=DATA[fcDataKey];
+  document.getElementById('fcTitle').textContent=d.title;
+  document.getElementById('fcEyebrow').style.color=d.eyebrowColor;
+  document.getElementById('fcNum').textContent=`CONCEPT ${String(idx+1).padStart(2,'0')}`;
+  document.getElementById('fcName').textContent=cap.name;
+  document.getElementById('fcType').textContent=cap.type;
+  document.getElementById('fcDef').textContent=cap.def;
+  document.getElementById('fcEg').textContent=cap.eg;
+  document.getElementById('fcWho').textContent=cap.who;
+  ['fcs1','fcs2','fcs3','fcd1','fcd2','fcd3'].forEach(id=>document.getElementById(id).classList.remove('vis'));
+  ['fcdot1','fcdot2','fcdot3'].forEach(id=>document.getElementById(id).classList.remove('lit'));
+  document.getElementById('fcPrompt').style.display='flex';
+  document.getElementById('fcPromptTxt').textContent='Tap reveal to see the definition';
+  document.getElementById('fcReveal').textContent='Reveal ↓';
+  document.getElementById('fcReveal').disabled=false;
+  document.getElementById('fcCard').style.display='flex';
+  document.getElementById('fcComplete').classList.remove('vis');
+  document.getElementById('fcPrev').disabled=idx===0;
+  const pct=((idx+1)/concepts.length)*100;
+  document.getElementById('fcProgressFill').style.width=pct+'%';
+  document.getElementById('fcProgressLbl').textContent=`${idx+1}/${concepts.length}`;
+}
+function fcReveal(){
+  fcRevealed++;
+  if(fcRevealed===1){vis('fcd1');showSec('fcs1','fcdot1');document.getElementById('fcPromptTxt').textContent='Tap to see the example'}
+  else if(fcRevealed===2){vis('fcd2');showSec('fcs2','fcdot2');document.getElementById('fcPromptTxt').textContent='Tap to see who uses it'}
+  else if(fcRevealed===3){vis('fcd3');showSec('fcs3','fcdot3');document.getElementById('fcPrompt').style.display='none';
+    document.getElementById('fcReveal').textContent=fcCurrent===DATA[fcDataKey].concepts.length-1?'Finish ✓':'Next →'}
+  else{const c=DATA[fcDataKey].concepts;fcCurrent<c.length-1?fcLoad(fcCurrent+1):fcShowComplete()}
+}
+function vis(id){document.getElementById(id).classList.add('vis')}
+function showSec(sid,did){const s=document.getElementById(sid);s.classList.remove('vis');void s.offsetWidth;s.classList.add('vis');document.getElementById(did).classList.add('lit')}
+function fcPrev(){if(fcCurrent>0)fcLoad(fcCurrent-1)}
+function fcShowComplete(){document.getElementById('fcCard').style.display='none';document.getElementById('fcComplete').classList.add('vis');document.getElementById('fcReveal').disabled=true;document.getElementById('fcPrev').disabled=true}
+function fcRestart(){fcLoad(0)}
+
+// ===== EAS GAME =====
+let easBuilt=false;
+function buildEAS(){
+  if(easBuilt)return;easBuilt=true;
+  const grid=document.getElementById('easGrid');
+  const shuffled=[...EAS_CARDS].sort(()=>Math.random()-0.5);
+  shuffled.forEach(card=>{
+    const el=document.createElement('div');
+    el.className='eas-card';
+    el.dataset.cat=card.cat;
+    const labelMap={e:'Eligibility',a:'Applicability',s:'Suitability'};
+    el.innerHTML=`
+      <span class="eas-label">${labelMap[card.cat]}</span>
+      <span>${card.text}</span>
+      <span class="eas-why">${card.why}</span>
+      <a href="${card.src}" target="_blank" class="src-link eas-src">↗ Pega Academy source</a>`;
+    el.addEventListener('click',()=>{
+      el.classList.toggle('flipped');
+      if(el.classList.contains('flipped'))el.classList.add(card.cat);
+      else el.classList.remove(card.cat);
+    });
+    grid.appendChild(el);
+  });
+}
+function easFilter(cat){
+  document.querySelectorAll('.eas-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelector('.eas-btn.'+cat).classList.add('active');
+  document.querySelectorAll('.eas-card').forEach(c=>{
+    c.classList.toggle('hidden',cat!=='all'&&c.dataset.cat!==cat);
+  });
+}
+
+// ===== QUIZ =====
+let quizCurrent=0,quizScore=0,quizAnswered=false,quizBuilt=false;
+function buildQuiz(){if(quizBuilt)return;quizBuilt=true;renderQ(0)}
+function renderQ(idx){
+  quizAnswered=false;
+  const q=QUIZ[idx];
+  document.getElementById('quizContainer').innerHTML=`
+    <div class="quiz-q-num">Question ${idx+1} of ${QUIZ.length}</div>
+    <div class="quiz-question">${q.q}</div>
+    <div class="quiz-options" id="quizOpts">
+      ${q.opts.map((o,i)=>`<button class="quiz-opt" onclick="quizAnswer(${i})">
+        <span class="quiz-opt-letter">${String.fromCharCode(65+i)})</span><span>${o}</span>
+      </button>`).join('')}
+    </div>
+    <div class="quiz-reveal" id="quizReveal"></div>
+    <button class="quiz-next-btn" id="quizNextBtn" onclick="quizNext()">
+      ${idx===QUIZ.length-1?'See Results →':'Next Question →'}
+    </button>`;
+  updateQScore();
+}
+function quizAnswer(chosen){
+  if(quizAnswered)return;quizAnswered=true;
+  const q=QUIZ[quizCurrent];
+  if(q.correct===chosen)quizScore++;
+  document.querySelectorAll('.quiz-opt').forEach((b,i)=>{
+    b.classList.add('disabled');
+    if(i===q.correct)b.classList.add('correct');
+    else if(i===chosen&&q.correct!==chosen)b.classList.add('wrong');
+  });
+  const r=document.getElementById('quizReveal');
+  r.innerHTML=`<strong>${q.correct===chosen?'Correct!':'Incorrect.'}</strong> ${q.hint}`;
+  r.classList.add('show');
+  document.getElementById('quizNextBtn').classList.add('show');
+  updateQScore();
+}
+function quizNext(){
+  quizCurrent++;
+  if(quizCurrent>=QUIZ.length){showQuizEnd();return}
+  renderQ(quizCurrent);
+}
+function updateQScore(){
+  document.getElementById('quizScoreDisplay').textContent=`${quizScore} / ${quizCurrent+(quizAnswered?1:0)}`;
+}
+function showQuizEnd(){
+  document.getElementById('quizContainer').style.display='none';
+  const end=document.getElementById('quizEnd');end.classList.add('show');
+  document.getElementById('quizFinalScore').textContent=`${quizScore}/${QUIZ.length}`;
+  const p=quizScore/QUIZ.length;
+  document.getElementById('quizEndMsg').textContent=
+    p>=0.9?'Excellent — exam ready on contact policies! 🎯':
+    p>=0.7?'Good work — review the ones you missed 📚':
+    p>=0.5?'Getting there — contact policy logic takes practice 💪':
+    'Keep going — work through each incorrect answer carefully 🔄';
+}
+function quizRestart(){
+  quizCurrent=0;quizScore=0;quizAnswered=false;
+  document.getElementById('quizContainer').style.display='block';
+  document.getElementById('quizEnd').classList.remove('show');
+  renderQ(0);
+}
+
+// ===== LIFECYCLE =====
+let lcBuilt=false;
+function buildLifecycle(){
+  if(lcBuilt)return;lcBuilt=true;
+  const diag=document.getElementById('lifecycleDiagram');
+  LIFECYCLE.forEach((s,i)=>{
+    const node=document.createElement('div');
+    node.className=`lc-node lc-n${i}`;
+    node.innerHTML=`
+      <div class="lc-left">
+        <div class="lc-circle" onclick="toggleLC(${i})">${s.icon}</div>
+        <div class="lc-line"></div>
+      </div>
+      <div class="lc-right">
+        <div class="lc-header" onclick="toggleLC(${i})">
+          <div class="lc-stage">${s.stage}</div>
+          <div class="lc-who-pill">${s.who}</div>
+        </div>
+        <div class="lc-hint" id="lc-hint-${i}">Tap to expand</div>
+        <div class="lc-body" id="lc-body-${i}">
+          <p>${s.what}</p>
+          <ul>${s.bullets.map(b=>`<li>${b}</li>`).join('')}</ul>
+          <a href="${s.src}" target="_blank" class="src-link">↗ Pega Docs — Change Request Flow</a>
+        </div>
+      </div>`;
+    diag.appendChild(node);
+  });
+}
+function toggleLC(i){
+  const body=document.getElementById(`lc-body-${i}`);
+  const hint=document.getElementById(`lc-hint-${i}`);
+  const open=body.classList.toggle('open');
+  hint.style.display=open?'none':'block';
+}
+</script>
+</body>
+</html>
